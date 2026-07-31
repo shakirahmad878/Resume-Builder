@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Resume Builder</title>
+  <style>
+    :root {
+      --primary: #556b2f; /* Default Olive Green */
+      --primary-hover: #3b4a20;
+      --primary-light: #f4f7f0;
+      --primary-border: #c2d1a0;
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Header Controls */
+    .app-header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 60px;
+    }
+
+    .app-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .color-presets {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .color-swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.15);
+    }
+
+    .color-swatch.active {
+      border-color: #0f172a;
+      transform: scale(1.1);
+    }
+
+    .color-picker-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding-left: 0.5rem;
+      border-left: 1px solid var(--border);
+    }
+
+    .color-picker-input {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: 26px;
+      height: 26px;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+
+    .color-picker-input::-webkit-color-swatch {
+      border: 2px solid var(--border);
+      border-radius: 50%;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .app-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: calc(100vh - 60px);
+    }
+
+    /* Form Section */
+    .form-section {
+      padding: 1.5rem;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      background: #ffffff;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 2px solid var(--border);
+      color: var(--text-main);
+    }
+
+    /* Template Selector Grid */
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .theme-card {
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.6rem 0.4rem;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+      background: #fafafa;
+    }
+
+    .theme-card:hover {
+      border-color: var(--primary-border);
+      background: var(--primary-light);
+    }
+
+    .theme-card.active {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.375rem;
+    }
+
+    input[type="text"], input[type="email"], textarea {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(85, 107, 47, 0.15);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    .dynamic-item {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Preview Section */
+    .preview-section {
+      padding: 2rem;
+      overflow-y: auto;
+      background: #f1f5f9;
+      display: flex;
+      justify-content: center;
+    }
+
+    .resume-paper {
+      background: white;
+      width: 100%;
+      max-width: 800px;
+      min-height: 1000px;
+      padding: 2.5rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      border-radius: 2px;
+      height: fit-content;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    /* Base Shared Resume Styles */
+    .res-item { margin-bottom: 0.85rem; }
+    .res-item-header { display: flex; justify-content: space-between; align-items: baseline; }
+    .res-item-title { font-size: 0.95rem; font-weight: 700; color: #1e293b; }
+    .res-item-subtitle { font-size: 0.875rem; font-weight: 600; color: var(--primary); }
+    .res-item-date { font-size: 0.8rem; color: #64748b; font-weight: 500; }
+    .res-item-bullets { font-size: 0.85rem; color: #334155; margin-top: 0.35rem; padding-left: 1.25rem; }
+    .res-item-bullets li { margin-bottom: 0.25rem; }
+    .res-summary { font-size: 0.875rem; color: #334155; line-height: 1.5; }
+
+    /* ==========================================================================
+       TEMPLATE 1: CLASSIC (Centered Header, Underlined Titles)
+       ========================================================================== */
+    .theme-classic .res-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .theme-classic .res-name {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .theme-classic .res-contact {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 0.35rem;
+      font-size: 0.85rem;
+      color: #475569;
+    }
+    .theme-classic .res-section { margin-bottom: 1.25rem; }
+    .theme-classic .res-section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary);
+      border-bottom: 1.5px solid var(--primary);
+      padding-bottom: 0.2rem;
+      margin-bottom: 0.75rem;
+      text-align: center;
+    }
+    .theme-classic .res-skills-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem 1.5rem;
+      font-size: 0.85rem;
+      padding-left: 1.25rem;
+    }
+
+    /* ==========================================================================
+       TEMPLATE 2: MODERN HEADER (Full Accent Banner Header)
+       ========================================================================== */
+    .theme-modern-header {
+      padding: 0 !important;
+    }
+    .theme-modern-header .res-header-banner {
+      background: var(--primary);
+      color: white;
+      padding: 2.25rem 2.5rem 1.75rem 2.5rem;
+      margin-bottom: 1.75rem;
+    }
+    .theme-modern-header .res-body {
+      padding: 0 2.5rem 2.5rem 2.5rem;
+    }
+    .theme-modern-header .res-name {
+      font-size: 2.25rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      line-height: 1.1;
+    }
+    .theme-modern-header .res-contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      opacity: 0.95;
+    }
+    .theme-modern-header .res-section { margin-bottom: 1.35rem; }
+    .theme-modern-header .res-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.25rem;
+    }
+    .theme-modern-header .res-skills-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem 1.5rem;
+      font-size: 0.85rem;
+      padding-left: 1.25rem;
+    }
+
+    /* ==========================================================================
+       TEMPLATE 3: HEADER STRIP (Bold Top Bar, Clean Sans Layout)
+       ========================================================================== */
+    .theme-header-strip {
+      padding-top: 0 !important;
+    }
+    .theme-header-strip::before {
+      content: "";
+      display: block;
+      height: 12px;
+      background: var(--primary);
+      margin: 0 -2.5rem 2rem -2.5rem;
+    }
+    .theme-header-strip .res-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .theme-header-strip .res-name {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+    .theme-header-strip .res-contact {
+      text-align: right;
+      font-size: 0.825rem;
+      color: #475569;
+      line-height: 1.4;
+    }
+    .theme-header-strip .res-section { margin-bottom: 1.35rem; }
+    .theme-header-strip .res-section-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #0f172a;
+      margin-bottom: 0.75rem;
+    }
+    .theme-header-strip .res-skills-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .theme-header-strip .skill-tag {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid var(--primary-border);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       TEMPLATE 4: LEFT SIDEBAR (Split 2-Column, Dark/Color Sidebar)
+       ========================================================================== */
+    .theme-sidebar {
+      padding: 0 !important;
+      display: grid !important;
+      grid-template-columns: 240px 1fr;
+      min-height: 1000px;
+    }
+    .theme-sidebar .res-sidebar {
+      background: var(--primary);
+      color: white;
+      padding: 2.5rem 1.5rem;
+    }
+    .theme-sidebar .res-main {
+      padding: 2.5rem;
+    }
+    .theme-sidebar .res-name {
+      font-size: 1.75rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+    .theme-sidebar .res-sidebar-section {
+      margin-bottom: 1.75rem;
+    }
+    .theme-sidebar .res-sidebar-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      padding-bottom: 0.3rem;
+      margin-bottom: 0.75rem;
+    }
+    .theme-sidebar .res-contact-list {
+      font-size: 0.8rem;
+      line-height: 1.6;
+      opacity: 0.95;
+      word-break: break-all;
+    }
+    .theme-sidebar .res-sidebar-skills {
+      list-style: disc;
+      padding-left: 1rem;
+      font-size: 0.825rem;
+      line-height: 1.6;
+    }
+    .theme-sidebar .res-section { margin-bottom: 1.5rem; }
+    .theme-sidebar .res-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--primary-border);
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.85rem;
+    }
+
+    /* ==========================================================================
+       TEMPLATE 5: TWO-COLUMN TOP HEADER (Banner Header + Split Content)
+       ========================================================================== */
+    .theme-two-column-top {
+      padding: 0 !important;
+    }
+    .theme-two-column-top .res-header-banner {
+      background: var(--primary);
+      color: white;
+      padding: 2rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .theme-two-column-top .res-name {
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+    .theme-two-column-top .res-contact {
+      text-align: right;
+      font-size: 0.85rem;
+      opacity: 0.95;
+      line-height: 1.5;
+    }
+    .theme-two-column-top .res-grid {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 2rem;
+      padding: 2.5rem;
+    }
+    .theme-two-column-top .res-section { margin-bottom: 1.5rem; }
+    .theme-two-column-top .res-section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ==========================================================================
+       TEMPLATE 6: MODERN SIDEBAR (Light Split Layout)
+       ========================================================================== */
+    .theme-modern-sidebar {
+      padding: 0 !important;
+      display: grid !important;
+      grid-template-columns: 240px 1fr;
+      min-height: 1000px;
+    }
+    .theme-modern-sidebar .res-sidebar {
+      background: #f8fafc;
+      border-right: 1px solid var(--border);
+      padding: 2.5rem 1.5rem;
+    }
+    .theme-modern-sidebar .res-main {
+      padding: 2.5rem;
+    }
+    .theme-modern-sidebar .res-name {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      line-height: 1.1;
+    }
+    .theme-modern-sidebar .res-sidebar-section {
+      margin-bottom: 1.75rem;
+    }
+    .theme-modern-sidebar .res-sidebar-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #0f172a;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.75rem;
+    }
+    .theme-modern-sidebar .res-contact-list {
+      font-size: 0.825rem;
+      line-height: 1.6;
+      color: #475569;
+      word-break: break-all;
+    }
+    .theme-modern-sidebar .res-section { margin-bottom: 1.5rem; }
+    .theme-modern-sidebar .res-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.85rem;
+    }
+
+    /* Print Overrides */
+    @media print {
+      body { background: white; overflow: visible; }
+      .app-header, .form-section { display: none !important; }
+      .app-container { display: block; height: auto; }
+      .preview-section { padding: 0; background: white; overflow: visible; }
+      .resume-paper { box-shadow: none; max-width: 100%; width: 100%; }
+    }
+
+    @media (max-width: 900px) {
+      body { overflow: auto; }
+      .app-container { grid-template-columns: 1fr; height: auto; }
+      .form-section, .preview-section { overflow-y: visible; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="app-title">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 2 0 0 0-2 2v16a2 2 2 0 0 0 2 2h12a2 2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+      Resume Builder
+    </div>
+    <div class="header-actions">
+      <!-- Quick Preset Colors -->
+      <div class="color-presets">
+        <div class="color-swatch active" style="background: #556b2f;" onclick="updateAccentColor('#556b2f')"></div>
+        <div class="color-swatch" style="background: #7c3aed;" onclick="updateAccentColor('#7c3aed')"></div>
+        <div class="color-swatch" style="background: #1e293b;" onclick="updateAccentColor('#1e293b')"></div>
+        <div class="color-swatch" style="background: #ea580c;" onclick="updateAccentColor('#ea580c')"></div>
+        <div class="color-swatch" style="background: #0284c7;" onclick="updateAccentColor('#0284c7')"></div>
+        <div class="color-swatch" style="background: #059669;" onclick="updateAccentColor('#059669')"></div>
+      </div>
+
+      <!-- Custom Color Picker -->
+      <div class="color-picker-wrapper">
+        <label for="color-picker">Custom</label>
+        <input type="color" id="color-picker" class="color-picker-input" value="#556b2f" onchange="updateAccentColor(this.value)">
+      </div>
+
+      <button class="btn" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 2 0 0 1-2-2v-5a2 2 2 0 0 1 2-2h16a2 2 2 0 0 1 2 2v5a2 2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        Download / Print PDF
+      </button>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <!-- Form Side -->
+    <div class="form-section">
+      <h2 class="section-title">Select Resume Template</h2>
+      <div class="theme-grid">
+        <div class="theme-card active" id="theme-btn-classic" onclick="setTheme('classic')">Classic Centered</div>
+        <div class="theme-card" id="theme-btn-modern-header" onclick="setTheme('modern-header')">Modern Header</div>
+        <div class="theme-card" id="theme-btn-header-strip" onclick="setTheme('header-strip')">Header Strip</div>
+        <div class="theme-card" id="theme-btn-sidebar" onclick="setTheme('sidebar')">Left Sidebar</div>
+        <div class="theme-card" id="theme-btn-two-column-top" onclick="setTheme('two-column-top')">Top Split</div>
+        <div class="theme-card" id="theme-btn-modern-sidebar" onclick="setTheme('modern-sidebar')">Modern Sidebar</div>
+      </div>
+
+      <h2 class="section-title">Personal Details</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="input-name" placeholder="Saanvi Patel" oninput="updateResume()">
+        </div>
+        <div class="form-group">
+          <label>Job Title</label>
+          <input type="text" id="input-title" placeholder="Retail Sales Associate" oninput="updateResume()">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="input-email" placeholder="saanvipatel@sample.in" oninput="updateResume()">
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" id="input-phone" placeholder="+91 22 1234 5677" oninput="updateResume()">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Location</label>
+          <input type="text" id="input-location" placeholder="New Delhi, India 110034" oninput="updateResume()">
+        </div>
+        <div class="form-group">
+          <label>LinkedIn / Portfolio</label>
+          <input type="text" id="input-linkedin" placeholder="linkedin.com/in/saanvipatel" oninput="updateResume()">
+        </div>
+      </div>
+
+      <h2 class="section-title" style="margin-top: 1.5rem;">Professional Summary</h2>
+      <div class="form-group">
+        <textarea id="input-summary" placeholder="Write a short overview of your background..." oninput="updateResume()"></textarea>
+      </div>
+
+      <h2 class="section-title" style="margin-top: 1.5rem;">Education</h2>
+      <div id="education-container"></div>
+      <button class="btn btn-secondary" onclick="addEducation()" style="width: 100%; margin-bottom: 1.5rem;">+ Add Education</button>
+
+      <h2 class="section-title">Skills</h2>
+      <div class="form-group">
+        <label>Skills (Comma Separated)</label>
+        <input type="text" id="input-skills" placeholder="Store opening and closing, Sales expertise, Loss prevention" oninput="updateResume()">
+      </div>
+
+      <h2 class="section-title" style="margin-top: 1.5rem;">Work History</h2>
+      <div id="experience-container"></div>
+      <button class="btn btn-secondary" onclick="addExperience()" style="width: 100%; margin-bottom: 1.5rem;">+ Add Experience</button>
+    </div>
+
+    <!-- Preview Side -->
+    <div class="preview-section">
+      <div class="resume-paper theme-classic" id="resume-preview">
+        <!-- Dynamic content injected here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    const state = {
+      theme: 'classic',
+      primaryColor: '#556b2f',
+      name: "Saanvi Patel",
+      title: "Retail Sales Associate",
+      email: "saanvipatel@sample.in",
+      phone: "+91 22 1234 5677",
+      location: "New Delhi, India 110034",
+      linkedin: "",
+      summary: "Motivated Sales Associate with 5 years of experience boosting sales and customer loyalty through individualized service. Resourceful expert at learning customer needs, directing to desirable merchandise and upselling to meet sales quotas. Committed to strengthening customer experiences with positivity and professionalism when answering requests and processing sales.",
+      education: [
+        {
+          id: 1,
+          degree: "Diploma in Financial Accounting",
+          school: "Oxford Software Institute & Oxford School of English, New Delhi, India",
+          dates: "June 2016"
+        }
+      ],
+      skills: "Store opening and closing, Sales expertise, Accurate Money Handling, Store Merchandising, Loss prevention, Product promotions",
+      experiences: [
+        {
+          id: 1,
+          title: "Retail Sales Associate",
+          company: "H&M, New Delhi",
+          dates: "May 2022 - Current",
+          bullets: "Effectively upsold products by introducing accessories and other add-ons, adding ₹3000 to average monthly sales.\nGenerated brand awareness and positive product impressions to increase sales 22%.\nUsed consultative sales approach to understand customer needs and recommend relevant offerings."
+        },
+        {
+          id: 2,
+          title: "Barista",
+          company: "Starbucks, New Delhi",
+          dates: "January 2021 - March 2022",
+          bullets: "Created over 60 drinks per hour with consistently positive customer satisfaction scores.\nLearned every menu preparation and numerous off-label drinks to meet all customer needs.\nUpsold baked goods and extra shots with beverages, increasing store sales ₹3800 per month."
+        }
+      ]
+    };
+
+    // Color Helpers
+    function hexToRgb(hex) {
+      let c = hex.replace('#', '');
+      if (c.length === 3) c = c.split('').map(x => x + x).join('');
+      const num = parseInt(c, 16);
+      return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+    }
+
+    function updateAccentColor(hex) {
+      state.primaryColor = hex;
+      const { r, g, b } = hexToRgb(hex);
+      
+      const root = document.documentElement;
+      root.style.setProperty('--primary', hex);
+      root.style.setProperty('--primary-hover', hex);
+      root.style.setProperty('--primary-light', `rgba(${r}, ${g}, ${b}, 0.08)`);
+      root.style.setProperty('--primary-border', `rgba(${r}, ${g}, ${b}, 0.25)`);
+
+      document.getElementById('color-picker').value = hex;
+
+      document.querySelectorAll('.color-swatch').forEach(swatch => {
+        if (swatch.style.backgroundColor && swatch.style.backgroundColor.toLowerCase() === hexToRgbString(hex)) {
+          swatch.classList.add('active');
+        } else {
+          swatch.classList.remove('active');
+        }
+      });
+    }
+
+    function hexToRgbString(hex) {
+      const { r, g, b } = hexToRgb(hex);
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    // Theme Switcher
+    function setTheme(themeName) {
+      state.theme = themeName;
+      document.querySelectorAll('.theme-card').forEach(card => card.classList.remove('active'));
+      document.getElementById(`theme-btn-${themeName}`).classList.add('active');
+
+      const preview = document.getElementById('resume-preview');
+      preview.className = `resume-paper theme-${themeName}`;
+      updateResume();
+    }
+
+    // Form Initialization
+    function initForm() {
+      document.getElementById('input-name').value = state.name;
+      document.getElementById('input-title').value = state.title;
+      document.getElementById('input-email').value = state.email;
+      document.getElementById('input-phone').value = state.phone;
+      document.getElementById('input-location').value = state.location;
+      document.getElementById('input-linkedin').value = state.linkedin;
+      document.getElementById('input-summary').value = state.summary;
+      document.getElementById('input-skills').value = state.skills;
+
+      renderExperienceInputs();
+      renderEducationInputs();
+      updateAccentColor(state.primaryColor);
+      updateResume();
+    }
+
+    // Dynamic Experience Fields
+    function renderExperienceInputs() {
+      const container = document.getElementById('experience-container');
+      container.innerHTML = '';
+      state.experiences.forEach((exp, index) => {
+        const div = document.createElement('div');
+        div.className = 'dynamic-item';
+        div.innerHTML = `
+          <div class="item-header">
+            <strong>Experience #${index + 1}</strong>
+            <button class="btn btn-danger" onclick="removeExperience(${exp.id})">Delete</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Job Title</label>
+              <input type="text" value="${exp.title}" oninput="updateExp(${exp.id}, 'title', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Company</label>
+              <input type="text" value="${exp.company}" oninput="updateExp(${exp.id}, 'company', this.value)">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Dates</label>
+            <input type="text" value="${exp.dates}" oninput="updateExp(${exp.id}, 'dates', this.value)">
+          </div>
+          <div class="form-group">
+            <label>Bullet Points (One per line)</label>
+            <textarea oninput="updateExp(${exp.id}, 'bullets', this.value)">${exp.bullets}</textarea>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addExperience() {
+      state.experiences.push({ id: Date.now(), title: "", company: "", dates: "", bullets: "" });
+      renderExperienceInputs();
+      updateResume();
+    }
+
+    function removeExperience(id) {
+      state.experiences = state.experiences.filter(e => e.id !== id);
+      renderExperienceInputs();
+      updateResume();
+    }
+
+    function updateExp(id, field, val) {
+      const item = state.experiences.find(e => e.id === id);
+      if (item) { item[field] = val; updateResume(); }
+    }
+
+    // Dynamic Education Fields
+    function renderEducationInputs() {
+      const container = document.getElementById('education-container');
+      container.innerHTML = '';
+      state.education.forEach((edu, index) => {
+        const div = document.createElement('div');
+        div.className = 'dynamic-item';
+        div.innerHTML = `
+          <div class="item-header">
+            <strong>Education #${index + 1}</strong>
+            <button class="btn btn-danger" onclick="removeEducation(${edu.id})">Delete</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Degree / Program</label>
+              <input type="text" value="${edu.degree}" oninput="updateEdu(${edu.id}, 'degree', this.value)">
+            </div>
+            <div class="form-group">
+              <label>School / University</label>
+              <input type="text" value="${edu.school}" oninput="updateEdu(${edu.id}, 'school', this.value)">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Dates</label>
+            <input type="text" value="${edu.dates}" oninput="updateEdu(${edu.id}, 'dates', this.value)">
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addEducation() {
+      state.education.push({ id: Date.now(), degree: "", school: "", dates: "" });
+      renderEducationInputs();
+      updateResume();
+    }
+
+    function removeEducation(id) {
+      state.education = state.education.filter(e => e.id !== id);
+      renderEducationInputs();
+      updateResume();
+    }
+
+    function updateEdu(id, field, val) {
+      const item = state.education.find(e => e.id === id);
+      if (item) { item[field] = val; updateResume(); }
+    }
+
+    // Main Resume Renderer
+    function updateResume() {
+      state.name = document.getElementById('input-name').value;
+      state.title = document.getElementById('input-title').value;
+      state.email = document.getElementById('input-email').value;
+      state.phone = document.getElementById('input-phone').value;
+      state.location = document.getElementById('input-location').value;
+      state.linkedin = document.getElementById('input-linkedin').value;
+      state.summary = document.getElementById('input-summary').value;
+      state.skills = document.getElementById('input-skills').value;
+
+      const preview = document.getElementById('resume-preview');
+
+      // Shared Data Parsers
+      const skillArray = state.skills.split(',').map(s => s.trim()).filter(s => s.length > 0);
+      
+      const expHtml = state.experiences.map(exp => {
+        const bullets = exp.bullets.split('\n').map(b => b.trim()).filter(b => b.length > 0).map(b => `<li>${escapeHtml(b)}</li>`).join('');
+        return `
+          <div class="res-item">
+            <div class="res-item-header">
+              <span class="res-item-title">${escapeHtml(exp.title)}</span>
+              <span class="res-item-date">${escapeHtml(exp.dates)}</span>
+            </div>
+            <div class="res-item-subtitle">${escapeHtml(exp.company)}</div>
+            ${bullets ? `<ul class="res-item-bullets">${bullets}</ul>` : ''}
+          </div>
+        `;
+      }).join('');
+
+      const eduHtml = state.education.map(edu => `
+        <div class="res-item">
+          <div class="res-item-header">
+            <span class="res-item-title">${escapeHtml(edu.degree)}</span>
+            <span class="res-item-date">${escapeHtml(edu.dates)}</span>
+          </div>
+          <div class="res-item-subtitle">${escapeHtml(edu.school)}</div>
+        </div>
+      `).join('');
+
+      // Build Template Variant Output
+      if (state.theme === 'sidebar') {
+        // TEMPLATE 4: Left Sidebar
+        preview.innerHTML = `
+          <div class="res-sidebar">
+            <div class="res-name">${escapeHtml(state.name || 'Your Name')}</div>
+            <div style="font-size: 0.9rem; margin-bottom: 1.5rem; opacity: 0.9;">${escapeHtml(state.title)}</div>
+            
+            <div class="res-sidebar-section">
+              <div class="res-sidebar-title">Contact</div>
+              <div class="res-contact-list">
+                ${state.location ? `<div>${escapeHtml(state.location)}</div>` : ''}
+                ${state.phone ? `<div>${escapeHtml(state.phone)}</div>` : ''}
+                ${state.email ? `<div>${escapeHtml(state.email)}</div>` : ''}
+                ${state.linkedin ? `<div>${escapeHtml(state.linkedin)}</div>` : ''}
+              </div>
+            </div>
+
+            ${skillArray.length ? `
+            <div class="res-sidebar-section">
+              <div class="res-sidebar-title">Skills</div>
+              <ul class="res-sidebar-skills">
+                ${skillArray.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+              </ul>
+            </div>
+            ` : ''}
+          </div>
+          <div class="res-main">
+            ${state.summary ? `<section class="res-section"><h3 class="res-section-title">Professional Summary</h3><div class="res-summary">${escapeHtml(state.summary)}</div></section>` : ''}
+            ${state.education.length ? `<section class="res-section"><h3 class="res-section-title">Education</h3>${eduHtml}</section>` : ''}
+            ${state.experiences.length ? `<section class="res-section"><h3 class="res-section-title">Work History</h3>${expHtml}</section>` : ''}
+          </div>
+        `;
+      } else if (state.theme === 'modern-sidebar') {
+        // TEMPLATE 6: Modern Sidebar (Light)
+        preview.innerHTML = `
+          <div class="res-sidebar">
+            <div class="res-sidebar-section">
+              <div class="res-sidebar-title">Contact</div>
+              <div class="res-contact-list">
+                ${state.location ? `<div>${escapeHtml(state.location)}</div>` : ''}
+                ${state.phone ? `<div>${escapeHtml(state.phone)}</div>` : ''}
+                ${state.email ? `<div>${escapeHtml(state.email)}</div>` : ''}
+                ${state.linkedin ? `<div>${escapeHtml(state.linkedin)}</div>` : ''}
+              </div>
+            </div>
+
+            ${state.education.length ? `
+            <div class="res-sidebar-section">
+              <div class="res-sidebar-title">Education</div>
+              ${eduHtml}
+            </div>
+            ` : ''}
+
+            ${skillArray.length ? `
+            <div class="res-sidebar-section">
+              <div class="res-sidebar-title">Skills</div>
+              <ul class="res-sidebar-skills">
+                ${skillArray.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+              </ul>
+            </div>
+            ` : ''}
+          </div>
+          <div class="res-main">
+            <div class="res-name">${escapeHtml(state.name || 'Your Name')}</div>
+            <div style="font-size: 1rem; color: var(--primary); font-weight: 600; margin-bottom: 1.5rem;">${escapeHtml(state.title)}</div>
+            ${state.summary ? `<section class="res-section"><h3 class="res-section-title">Professional Summary</h3><div class="res-summary">${escapeHtml(state.summary)}</div></section>` : ''}
+            ${state.experiences.length ? `<section class="res-section"><h3 class="res-section-title">Work History</h3>${expHtml}</section>` : ''}
+          </div>
+        `;
+      } else if (state.theme === 'modern-header') {
+        // TEMPLATE 2: Full Accent Header
+        const contacts = [state.location, state.phone, state.email, state.linkedin].filter(Boolean).map(c => `<span>${escapeHtml(c)}</span>`).join(' | ');
+        preview.innerHTML = `
+          <div class="res-header-banner">
+            <div class="res-name">${escapeHtml(state.name || 'Your Name')}</div>
+            <div style="font-size: 1.1rem; opacity: 0.9; margin-top: 0.25rem;">${escapeHtml(state.title)}</div>
+            <div class="res-contact">${contacts}</div>
+          </div>
+          <div class="res-body">
+            ${state.summary ? `<section class="res-section"><h3 class="res-section-title">Professional Summary</h3><div class="res-summary">${escapeHtml(state.summary)}</div></section>` : ''}
+            ${state.education.length ? `<section class="res-section"><h3 class="res-section-title">Education</h3>${eduHtml}</section>` : ''}
+            ${skillArray.length ? `<section class="res-section"><h3 class="res-section-title">Skills</h3><ul class="res-skills-list">${skillArray.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></section>` : ''}
+            ${state.experiences.length ? `<section class="res-section"><h3 class="res-section-title">Work History</h3>${expHtml}</section>` : ''}
+          </div>
+        `;
+      } else if (state.theme === 'two-column-top') {
+        // TEMPLATE 5: Top Split
+        const contacts = [state.location, state.phone, state.email].filter(Boolean).map(c => `<div>${escapeHtml(c)}</div>`).join('');
+        preview.innerHTML = `
+          <div class="res-header-banner">
+            <div>
+              <div class="res-name">${escapeHtml(state.name || 'Your Name')}</div>
+              <div style="font-size: 1rem; opacity: 0.9;">${escapeHtml(state.title)}</div>
+            </div>
+            <div class="res-contact">${contacts}</div>
+          </div>
+          <div class="res-grid">
+            <div>
+              ${state.education.length ? `<section class="res-section"><h3 class="res-section-title">Education</h3>${eduHtml}</section>` : ''}
+              ${skillArray.length ? `<section class="res-section"><h3 class="res-section-title">Skills</h3><ul style="padding-left: 1rem; font-size: 0.85rem;">${skillArray.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></section>` : ''}
+            </div>
+            <div>
+              ${state.summary ? `<section class="res-section"><h3 class="res-section-title">Professional Summary</h3><div class="res-summary">${escapeHtml(state.summary)}</div></section>` : ''}
+              ${state.experiences.length ? `<section class="res-section"><h3 class="res-section-title">Work History</h3>${expHtml}</section>` : ''}
+            </div>
+          </div>
+        `;
+      } else if (state.theme === 'header-strip') {
+        // TEMPLATE 3: Header Strip & Badges
+        const contacts = [state.location, state.phone, state.email].filter(Boolean).map(c => `<div>${escapeHtml(c)}</div>`).join('');
+        preview.innerHTML = `
+          <div class="res-header">
+            <div>
+              <div class="res-name">${escapeHtml(state.name || 'Your Name')}</div>
+              <div style="font-size: 1rem; color: var(--primary); font-weight: 600;">${escapeHtml(state.title)}</div>
+            </div>
+            <div class="res-contact">${contacts}</div>
+          </div>
+          ${state.summary ? `<section class="res-section"><h3 class="res-section-title">Professional Summary</h3><div class="res-summary">${escapeHtml(state.summary)}</div></section>` : ''}
+          ${state.education.length ? `<section class="res-section"><h3 class="res-section-title">Education</h3>${eduHtml}</section>` : ''}
+          ${skillArray.length ? `<section class="res-section"><h3 class="res-section-title">Skills</h3><div class="res-skills-badges">${skillArray.map(s => `<span class="skill-tag">${escapeHtml(s)}</span>`).join('')}</div></section>` : ''}
+          ${state.experiences.length ? `<section class="res-section"><h3 class="res-section-title">Work History</h3>${expHtml}</section>` : ''}
+        `;
+      } else {
+        // TEMPLATE 1: Classic Centered (Default)
+        const contacts = [state.location, state.phone, state.email].filter(Boolean).map(c => `<span>${escapeHtml(c)}</span>`).join(' | ');
+        preview.innerHTML = `
+          <header class="res-header">
+            <div class="res-name">${escapeHtml(state.name || 'Your Name')}</div>
+            <div class="res-contact">${contacts}</div>
+          </header>
+          ${state.summary ? `<section class="res-section"><h3 class="res-section-title">Professional Summary</h3><div class="res-summary">${escapeHtml(state.summary)}</div></section>` : ''}
+          ${state.education.length ? `<section class="res-section"><h3 class="res-section-title">Education</h3>${eduHtml}</section>` : ''}
+          ${skillArray.length ? `<section class="res-section"><h3 class="res-section-title">Skills</h3><ul class="res-skills-list">${skillArray.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></section>` : ''}
+          ${state.experiences.length ? `<section class="res-section"><h3 class="res-section-title">Work History</h3>${expHtml}</section>` : ''}
+        `;
+      }
+    }
+
+    function escapeHtml(str) {
+      return (str || '')
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    window.addEventListener('DOMContentLoaded', initForm);
+  </script>
+</body>
+</html>
